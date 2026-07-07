@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Do you love me? 🤗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-1:#ffe3ef;
+    --pink-2:#ffd1e3;
+    --lav-1:#e9e1ff;
+    --ink:#3a2e3f;
+    --sub:#8a7d92;
+    --yes:#ff6f9c;
+    --yes-dark:#ff4f87;
+    --no-bg:#f3eef7;
+    --no-ink:#7a6f85;
+    --card:#ffffff;
+    --shadow: 0 20px 50px rgba(255, 111, 156, 0.25);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    font-family:'Nunito', sans-serif;
+    overflow:hidden;
+    touch-action: manipulation;
+  }
+  body{
+    background: radial-gradient(circle at 20% 15%, var(--lav-1), transparent 45%),
+                radial-gradient(circle at 85% 85%, var(--pink-2), transparent 50%),
+                linear-gradient(160deg, var(--pink-1), var(--lav-1));
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+
+  /* floating ambient hearts */
+  .floaters{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:1;}
+  .floaters span{
+    position:absolute; bottom:-10%;
+    font-size: 22px;
+    opacity:0.55;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp{
+    0%{ transform: translateY(0) translateX(0) rotate(0deg); opacity:0;}
+    10%{opacity:0.6;}
+    100%{ transform: translateY(-115vh) translateX(var(--drift,20px)) rotate(25deg); opacity:0;}
+  }
+
+  .stage-wrap{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:420px;
+    padding:20px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:28px;
+    padding:34px 24px 30px;
+    box-shadow: var(--shadow);
+    text-align:center;
+    position:relative;
+    overflow:visible;
+    transition: box-shadow .3s ease;
+  }
+
+  .avatar-box{
+    width:160px; height:160px;
+    margin:0 auto 18px;
+    border-radius:26px;
+    background: linear-gradient(160deg, #f6f2ff, #ffeef5);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
+    animation: bob 2.6s ease-in-out infinite;
+    user-select:none;
+    overflow:hidden;
+  }
+  .avatar-box img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    -webkit-user-drag:none;
+    user-select:none;
+    pointer-events:none;
+  }
+  @keyframes bob{
+    0%,100%{ transform: translateY(0) rotate(0deg);}
+    50%{ transform: translateY(-8px) rotate(-2deg);}
+  }
+
+  h1{
+    font-family:'Baloo 2', cursive;
+    font-size: 26px;
+    margin: 6px 0 6px;
+    color:var(--ink);
+    letter-spacing:0.2px;
+    transition: font-size .25s ease;
+  }
+  p.sub{
+    margin:0 0 26px;
+    color:var(--sub);
+    font-size:15px;
+    font-weight:600;
+  }
+
+  .btn-row{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    min-height:56px;
+  }
+
+  button{
+    border:none;
+    outline:none;
+    font-family:'Nunito', sans-serif;
+    font-weight:800;
+    border-radius:16px;
+    cursor:pointer;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+
+  #yesBtn{
+    background: linear-gradient(135deg, var(--yes), var(--yes-dark));
+    color:#fff;
+    padding:14px 28px;
+    font-size:16px;
+    box-shadow: 0 10px 24px rgba(255,79,135,0.4);
+    transition: transform .18s ease, padding .3s ease, font-size .3s ease, box-shadow .2s ease;
+  }
+  #yesBtn:active{ transform: scale(0.94); }
+
+  #noBtn{
+    background: var(--no-bg);
+    color:var(--no-ink);
+    padding:14px 26px;
+    font-size:16px;
+    transition: left .28s cubic-bezier(.2,.9,.3,1.3), top .28s cubic-bezier(.2,.9,.3,1.3), transform .15s ease, opacity .25s ease;
+  }
+  #noBtn.roam{
+    position:fixed;
+    z-index:50;
+  }
+
+  .progress-dots{
+    display:flex; gap:6px; justify-content:center; margin-top:22px;
+  }
+  .progress-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:#eadcf0;
+    transition: background .25s ease, transform .25s ease;
+  }
+  .progress-dots span.active{
+    background:var(--yes);
+    transform: scale(1.3);
+  }
+
+  /* final stage */
+  .final .avatar-box{ width:190px; height:190px; }
+  .final h1{ font-size:28px; }
+
+  .confetti{
+    position:fixed; inset:0; pointer-events:none; z-index:60; overflow:hidden;
+  }
+  .confetti i{
+    position:absolute;
+    top:-10%;
+    border-radius:2px;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(115vh) rotate(540deg); opacity:0.9; }
+  }
+
+  .replay{
+    margin-top:20px;
+    background:none;
+    border:2px solid var(--yes);
+    color:var(--yes-dark);
+    padding:10px 20px;
+    border-radius:14px;
+    font-size:14px;
+    display:none;
+  }
+  .final .replay{ display:inline-block; }
+
+  .tag{
+    margin-top:22px;
+    font-size:12px;
+    color:#c9b8d4;
+    font-weight:700;
+    letter-spacing:0.4px;
+  }
+
+  @media (max-width:380px){
+    .avatar-box{ width:140px; height:140px; }
+    h1{ font-size:22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floaters" id="floaters"></div>
+
+<div class="stage-wrap">
+  <div class="card" id="card">
+    <div class="avatar-box" id="avatarBox"><img id="avatar" src="assets/stage0.webp" alt="cute cat"></div>
+    <h1 id="title">Do you love me?</h1>
+    <p class="sub" id="subtitle">Sach sach batana 🤭</p>
+
+    <div class="btn-row" id="btnRow">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </div>
+
+    <div class="progress-dots" id="dots"></div>
+    <button class="replay" id="replayBtn">Phir se poochho 🔁</button>
+  </div>
+  <div class="tag">made with 🩷 for you</div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+(function(){
+  // ---------- stages ----------
+  const stages = [
+    { img:'assets/stage0.webp', title:'Do you love me?', sub:'Sach sach batana 🤭' },
+    { img:'assets/stage1.webp', title:'Please think again!', sub:'Itni jaldi na mat bolo 😊' },
+    { img:'assets/stage2.webp', title:'Ek aur baar soch lo!', sub:'Kyu aisa kar rahi ho, plzz maan jao 🥺' },
+    { img:'assets/stage3.webp', title:'Baby maan jao na!', sub:'Kitna bhaav khaogi... bahut galat baat hai 😢' },
+    { img:'assets/stage4.webp', title:'Last chance hai ye!', sub:'No dabana bhool jao, dhoond nahi paogi 😜' },
+  ];
+  const finalStage = { img:'assets/final.webp', title:'I knew it! You love me a lot', sub:'I love you so much, my jaan ❤️' };
+
+  let step = 0;
+  const maxStep = stages.length - 1;
+
+  const avatar   = document.getElementById('avatar');
+  const title    = document.getElementById('title');
+  const subtitle = document.getElementById('subtitle');
+  const yesBtn   = document.getElementById('yesBtn');
+  const noBtn    = document.getElementById('noBtn');
+  const btnRow   = document.getElementById('btnRow');
+  const card     = document.getElementById('card');
+  const dots     = document.getElementById('dots');
+  const replayBtn= document.getElementById('replayBtn');
+
+  // build progress dots
+  stages.forEach((_, i) => {
+    const d = document.createElement('span');
+    if (i === 0) d.classList.add('active');
+    dots.appendChild(d);
+  });
+
+  function renderStage(i){
+    const s = stages[i];
+    avatar.src = s.img;
+    title.textContent = s.title;
+    subtitle.textContent = s.sub;
+    [...dots.children].forEach((d, idx) => d.classList.toggle('active', idx === i));
+
+    // grow Yes button a little each stage
+    const scale = 1 + i * 0.12;
+    yesBtn.style.fontSize = (16 * scale) + 'px';
+    yesBtn.style.padding = (14 * Math.min(scale,1.6)) + 'px ' + (28 * Math.min(scale,1.8)) + 'px';
+
+    // shrink No a touch each stage
+    const noScale = Math.max(1 - i * 0.12, 0.55);
+    noBtn.style.fontSize = (16 * noScale) + 'px';
+    noBtn.style.padding = (14 * noScale) + 'px ' + (26 * noScale) + 'px';
+
+    // little shake on the card for drama
+    card.style.transform = 'scale(0.98)';
+    requestAnimationFrame(()=> card.style.transition = 'transform .25s ease');
+    setTimeout(()=> card.style.transform = 'scale(1)', 20);
+
+    if (i >= maxStep - 1) {
+      // start roaming behaviour once we're close to the end
+      noBtn.classList.add('roam');
+    }
+  }
+
+  function randomPosNear(){
+    const margin = 70;
+    const w = window.innerWidth - margin*2;
+    const h = window.innerHeight - margin*2;
+    const x = margin + Math.random()*w;
+    const y = margin + Math.random()*h;
+    return {x,y};
+  }
+
+  function moveNoButton(){
+    const {x,y} = randomPosNear();
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+
+  function dodge(){
+    if (!noBtn.classList.contains('roam')) return;
+    moveNoButton();
+  }
+
+  // No button runs away on hover/touch approach
+  noBtn.addEventListener('mouseenter', dodge);
+  noBtn.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    dodge();
+  }, {passive:false});
+
+  noBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    if (step < maxStep) {
+      step++;
+      renderStage(step);
+      if (noBtn.classList.contains('roam')) moveNoButton();
+    } else {
+      // final dodge - vanish for good
+      noBtn.style.opacity = '0';
+      noBtn.style.pointerEvents = 'none';
+    }
+  });
+
+  // also dodge on pointer move if pointer gets close (desktop trackpads / mouse)
+  document.addEventListener('mousemove', function(e){
+    if (!noBtn.classList.contains('roam')) return;
+    const r = noBtn.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = r.top + r.height/2;
+    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+    if (dist < 90) dodge();
+  });
+
+  yesBtn.addEventListener('click', function(){
+    goFinal();
+  });
+
+  function goFinal(){
+    card.classList.add('final');
+    avatar.src = finalStage.img;
+    title.textContent = finalStage.title;
+    subtitle.textContent = finalStage.sub;
+    btnRow.style.display = 'none';
+    dots.style.display = 'none';
+    launchConfetti();
+  }
+
+  replayBtn.addEventListener('click', function(){
+    step = 0;
+    card.classList.remove('final');
+    btnRow.style.display = 'flex';
+    dots.style.display = 'flex';
+    noBtn.classList.remove('roam');
+    noBtn.style.position = '';
+    noBtn.style.left = '';
+    noBtn.style.top = '';
+    noBtn.style.opacity = '1';
+    noBtn.style.pointerEvents = 'auto';
+    renderStage(0);
+  });
+
+  // ---------- confetti ----------
+  function launchConfetti(){
+    const holder = document.getElementById('confetti');
+    const colors = ['#ff6f9c','#ffd1e3','#e9e1ff','#ffb6c9','#c9a6ff'];
+    for (let i=0;i<60;i++){
+      const el = document.createElement('i');
+      const size = 6 + Math.random()*8;
+      el.style.left = Math.random()*100 + 'vw';
+      el.style.width = size + 'px';
+      el.style.height = (size*0.4) + 'px';
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      el.style.animationDuration = (2.5 + Math.random()*2.5) + 's';
+      el.style.animationDelay = (Math.random()*1.2) + 's';
+      holder.appendChild(el);
+      setTimeout(()=> el.remove(), 6000);
+    }
+  }
+
+  // ---------- ambient floating hearts ----------
+  function spawnFloater(){
+    const el = document.createElement('span');
+    const hearts = ['💗','💕','💞','🩷','✨'];
+    el.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+    el.style.left = Math.random()*100 + 'vw';
+    el.style.setProperty('--drift', (Math.random()*80-40) + 'px');
+    el.style.animationDuration = (7 + Math.random()*6) + 's';
+    document.getElementById('floaters').appendChild(el);
+    setTimeout(()=> el.remove(), 14000);
+  }
+  setInterval(spawnFloater, 900);
+  for(let i=0;i<4;i++) setTimeout(spawnFloater, i*300);
+
+  // init
+  renderStage(0);
+})();
+</script>
+
+</body>
+</html>
